@@ -2,31 +2,46 @@ pipeline {
   agent any
 
   stages {
-
-    stage('git version') {
+    stage('Build Artifact - Maven') {
       steps {
-        sh "git version"
+        sh "mvn clean package -DskipTests=true"
+        archive 'target/*.jar'
       }
     }
 
-    stage('maven version') {
+    stage('Unit Tests - JUnit and Jacoco') {
       steps {
-        sh "mvn -v"
+        sh "mvn test"
       }
-    }
-
-    stage('docker version') {
-      steps {
-        sh "docker -v"
-      }
-    }
-
-    stage('kubernetes version') {
-      steps {
-        withKubeConfig([credentialsId: 'kubeconfig']) {
-          sh "kubectl version --short"
+      post {
+        always {
+          junit 'target/surefire-reports/*.xml'
+          jacoco execPattern: 'target/jacoco.exec'
         }
       }
     }
   }
 }
+
+
+#### Jacoco Plugin in pom.xml
+<!--                   Jacoco Plugin                   -->
+<plugin>
+   <groupId>org.jacoco</groupId>
+   <artifactId>jacoco-maven-plugin</artifactId>
+   <version>0.8.5</version>
+   <executions>
+      <execution>
+         <goals>
+            <goal>prepare-agent</goal>
+         </goals>
+      </execution>
+      <execution>
+         <id>report</id>
+         <phase>test</phase>
+         <goals>
+            <goal>report</goal>
+         </goals>
+      </execution>
+   </executions>
+</plugin>
