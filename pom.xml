@@ -65,7 +65,7 @@
 				</execution>
 			</executions>
 			</plugin>
-			<!--                   PITest Mutation Plugin                   -->
+			<!--                 PITest Mutation Plugin                   -->
 			<plugin>
 			<groupId>org.pitest</groupId>
 			<artifactId>pitest-maven</artifactId>
